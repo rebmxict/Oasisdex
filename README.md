@@ -1,11 +1,8 @@
-# getprice.js
-Getting price for offer in OasisDEX. Working with infura API (some times crashed)
+# pricing_data.js
+Getting price of bids and asks in OasisDEX.
 
 ## Example
 
 ```bash
-$ ./getprice.js --pair=MKR/W-ETH --amount=1000 # Price for buy 1000 W-ETH for MKR
-$ ./getprice.js --pair=W-ETH/MKR --amount=1000 # Price for buy 1000 MKR for W-ETH
+$ ./pricing_data.js MKR W-ETH 5000 # Pair for MKR/W-ETH, block step is 5000
 ```
-
-# Oasisdex

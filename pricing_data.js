@@ -17,16 +17,7 @@ async function f() {
   var quote = String(_argv[0]), base = String(_argv[1]), blockLimit = parseInt(_argv[2]);
 
   if (!base || !quote || !blockLimit) {
-    console.log(`
-    Usage: getprice.js [OPTIONS]
-
-    A self-sufficient runtime for containers
-
-    Options:
-      -h          Show this message
-      --amount    Amount of needed token 
-      --pair      Token pair (expample W-ETH/DAI)
-    `);
+    console.log(`Wrong configuration. Please check again.`);
   }
   else {
     var pair = base + '/' + quote;
