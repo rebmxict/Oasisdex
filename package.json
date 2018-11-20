@@ -1,0 +1,11 @@
+{
+  "name": "etherium-client",
+  "version": "0.0.1",
+  "dependencies": {
+    "big-integer": "^1.6.35",
+    "bignumber.js": "^7.2.1",
+    "optimist": "^0.6.1",
+    "typedarray-to-buffer": "^3.1.5",
+    "web3": "^1.0.0-beta.34"
+  }
+}
