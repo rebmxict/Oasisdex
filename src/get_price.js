@@ -88,11 +88,47 @@ function _request(url) {
   });
 }
 
+async function logCheck(pair) {
+  let fromBlock = parseInt(JSON.parse(await _request('https://api.etherscan.io/api?module=proxy&action=eth_blockNumber&apikey=8HKJXBWBUJN3WQ7XC6FPA6STNXYRPABNM9')).result);
+  toBlock = fromBlock;
+  fromBlock = Math.max(fromBlock - step, 0);
+
+  let logIds = [];
+  let sortedEvents = (await contract.getPastEvents('LogSortedOffer', {fromBlock: fromBlock , toBlock: toBlock, filter: {pair: web3.utils.soliditySha3(pair.to, pair.from)}})).reverse();
+  let itemUpdates = (await contract.getPastEvents('LogItemUpdate', {fromBlock: fromBlock , toBlock: toBlock, filter: {pair: web3.utils.soliditySha3(pair.to, pair.from)}})).reverse();
+
+  while (sortedEvents.length <= 20 && toBlock > 0) {
+    sortedEvents = sortedEvents.concat((await contract.getPastEvents('LogSortedOffer', {fromBlock: fromBlock , toBlock: toBlock, filter: {pair: web3.utils.soliditySha3(pair.to, pair.from)}})).reverse());
+    toBlock = fromBlock;
+    fromBlock = Math.max(fromBlock - step, 0);
+  }
+  sortedEvents = sortedEvents.slice(0, 21);
+
+  fromBlock = parseInt(JSON.parse(await _request('https://api.etherscan.io/api?module=proxy&action=eth_blockNumber&apikey=8HKJXBWBUJN3WQ7XC6FPA6STNXYRPABNM9')).result);
+  toBlock = fromBlock;
+  fromBlock = Math.max(fromBlock - step, 0);
+  while (itemUpdates.length <= 20 && toBlock > 0) {
+    itemUpdates = itemUpdates.concat((await contract.getPastEvents('LogItemUpdate', {fromBlock: fromBlock , toBlock: toBlock, filter: {pair: web3.utils.soliditySha3(pair.to, pair.from)}})).reverse());
+    toBlock = fromBlock;
+    fromBlock = Math.max(fromBlock - step, 0);
+  }
+  itemUpdates = itemUpdates.slice(0, 21);
+
+  sortedEvents.map(se => {
+    itemUpdates.map(iu => {
+      if(se.id == iu.id) { logIds.push(se.id); }
+    });
+  });
+
+  return logIds;
+}
+
 async function getLastTakedOrder(pair) {
   let fromBlock = parseInt(JSON.parse(await _request('https://api.etherscan.io/api?module=proxy&action=eth_blockNumber&apikey=8HKJXBWBUJN3WQ7XC6FPA6STNXYRPABNM9')).result);
   let toBlock = 'latest';
   const step = 50000;
   let events = (await contract.getPastEvents('LogTake', {fromBlock: fromBlock , toBlock: toBlock, filter: {pair: web3.utils.soliditySha3(pair.to, pair.from)}})).reverse();
+
   toBlock = fromBlock;
   fromBlock = Math.max(fromBlock - step, 0);
   while (events.length <= 20 && toBlock > 0) {
@@ -100,6 +136,7 @@ async function getLastTakedOrder(pair) {
     toBlock = fromBlock;
     fromBlock = Math.max(fromBlock - step, 0);
   }
+
   return events.slice(0, 21);
 }
 
