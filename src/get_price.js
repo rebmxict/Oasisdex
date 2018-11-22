@@ -125,6 +125,7 @@ async function getAllOfferForPair(pair) {
       buy_amt: bestOffer[2],
       id: offerId
     });
+
     offerId = nextOfferId;
     i--;
   }
@@ -145,11 +146,18 @@ async function getPrice(pairText) {
     return false;
   }
 
-  const offersRaw = await getAllOfferForPair(pair);
-  const offers = offersToWei(offersRaw, pair.fromDecimals, pair.toDecimals)
+  let offersRaw = await getAllOfferForPair(pair);
+  offersRaw = offersRaw.slice(0, 21);
+  const offers = offersToWei(offersRaw, pair.fromDecimals, pair.toDecimals);
+
+  for(let i = 0; i < offersRaw.length; i ++) {
+    let offerId = offersRaw[i].id;
+    let offer = await contract.methods.offers(offerId).call();
+    offersRaw[i]['timestamp'] = offer.timestamp;
+  }
 
   return {
-    asks: offersRaw.slice(0, 21).map(o => new Offer(pairText, String(o.pay_amt), String(o.buy_amt), o.timestamp)),
+    asks: offersRaw.map(o => new Offer(pairText, String(o.pay_amt), String(o.buy_amt), o.timestamp, 'SELL')),
     bids: (await getLastTakedOrder(pair)).map((e) => Offer.createFromTakeEvent(pairText, e)),
   }
 }

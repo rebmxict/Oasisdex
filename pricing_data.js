@@ -12,25 +12,44 @@ function offerToString(offer) {
   return `${String((offer.payAmt/dec/(offer.buyAmt/dec)).toFixed(6)).substring(0, 7)}    ${offer.payAmt/dec}`;
 }
 
+function orderToString(order) {
+  let side = 'BUY ';
+  if(order.side == 'SELL') { side = 'SELL'; }
+  return `${order.timestamp}     ${side}     ${order.payAmt/order.buyAmt}`;
+}
+
 async function f() {
-  var _argv = argv._;
-  var quote = String(_argv[0]), base = String(_argv[1]), blockLimit = parseInt(_argv[2]);
+  let _argv = argv._;
+  let quote = String(_argv[0]), base = String(_argv[1]), blockLimit = parseInt(_argv[2]);
 
   if (!base || !quote || !blockLimit) {
     console.log(`Wrong configuration. Please check again.`);
   }
   else {
-    var pair = base + '/' + quote;
-    var price = await getPrice(pair);
+    let pair = base + '/' + quote;
+    let price = await getPrice(pair);
 
     console.log(`Bids (${quote + '/' + base}):\nPrice      Volume`);
     price.bids.map(o => {
       console.log(offerToString(o));
     });
+    console.log('\n');
 
     console.log(`asks (${quote + '/' + base}):\nPrice      Volume`);
     price.asks.map(o => {
       console.log(offerToString(o));
+    });
+    console.log('\n');
+
+    let orders = price.bids.concat(price.asks);
+    orders.sort(function(a, b) {
+      return a.timestamp - b.timestamp;
+    }).reverse().slice(0, 10);
+
+    console.log(`Last Trades (${quote + '/' + base}):`);
+    console.log(`Timestamp      Action   Price`);
+    orders.map(order => {
+      console.log(orderToString(order));
     });
   }
 }
