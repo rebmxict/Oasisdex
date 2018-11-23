@@ -15,7 +15,8 @@ function offerToString(offer) {
 function orderToString(order) {
   let side = 'BUY ';
   if(order.side == 'SELL') { side = 'SELL'; }
-  return `${order.timestamp}     ${side}     ${order.payAmt/order.buyAmt}`;
+  let dec = Math.pow(10, 18);
+  return `${order.timestamp}     ${side}     ${String((order.payAmt/order.buyAmt).toFixed(15)).substring(0, 12)}   ${order.payAmt/dec}`;
 }
 
 async function f() {
@@ -47,7 +48,7 @@ async function f() {
     }).reverse().slice(0, 10);
 
     console.log(`Last Trades (${quote + '/' + base}):`);
-    console.log(`Timestamp      Action   Price`);
+    console.log(`Timestamp      Action   Price          Volume`);
     orders.map(order => {
       console.log(orderToString(order));
     });
